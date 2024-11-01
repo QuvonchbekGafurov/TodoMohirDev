@@ -31,7 +31,7 @@ fun BottomAppBarWithFab(todoViewModel: TodoViewModel, navController: NavControll
     Scaffold(
 
         content = {
-           TodoScreen(todoViewModel)
+           TodoScreen(todoViewModel,navController)
         },
 
         floatingActionButton = {

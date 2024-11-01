@@ -1,5 +1,7 @@
 package com.example.todomohirdev
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todomohirdev.data.Todo
@@ -18,6 +20,26 @@ class TodoViewModel @Inject constructor(
     fun insertTodo(todo: Todo) {
         viewModelScope.launch {
             repository.insertTodo(todo)
+        }
+    }
+    fun deleteTodo(id:Int) {
+        viewModelScope.launch {
+            repository.deleteTodoById(id)
+        }
+    }
+
+    private val _todoItem = MutableLiveData<Todo?>()
+    val todoItem: LiveData<Todo?> get() = _todoItem
+
+    fun getTodoById(todoId: Int) {
+        viewModelScope.launch {
+            val todo = repository.getTodoById(todoId)
+            _todoItem.value = todo
+        }
+    }
+    fun updateTodoTitle(todo: Todo) {
+        viewModelScope.launch {
+            repository.updateTodo(todo =todo )
         }
     }
 }

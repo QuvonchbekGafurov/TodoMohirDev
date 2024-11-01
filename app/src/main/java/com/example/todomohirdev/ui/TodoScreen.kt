@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.navOptions
 import com.example.todomohirdev.R
 import com.example.todomohirdev.TodoItem
 import com.example.todomohirdev.TodoViewModel
@@ -43,14 +46,14 @@ import androidx.compose.runtime.remember as remember
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoScreen(todoViewModel: TodoViewModel) {
+fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
     val allTodos by todoViewModel.allTodos.collectAsState(initial = emptyList())
     Log.e("TAG", "AllTodos:  $allTodos ", )
     val selectedIndex = remember { mutableStateOf(3) }
+
     val currentDate = LocalDate.now()
     Log.e("TAG", "TodoScreen: $currentDate", )
-    val tasks =
-        remember { getTasks().toMutableStateList() } // Tasklarni holatini eslab qolish uchun
+
     fun week(): List<String> {
         val today = LocalDate.now()
         val daysOfWeek = mutableListOf<String>()
@@ -164,7 +167,7 @@ fun TodoScreen(todoViewModel: TodoViewModel) {
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(allTodos) { todo ->
-                TaskItem(todo)
+                TaskItem(todo,todoViewModel,navController)
             }
         }
     }
@@ -172,8 +175,9 @@ fun TodoScreen(todoViewModel: TodoViewModel) {
 
 
 @Composable
-fun TaskItem(task: Todo) {
+fun TaskItem(task: Todo,todoViewModel: TodoViewModel,navController: NavController) {
     val isChecked = remember { mutableStateOf(task.checked) }
+    var selectedTodo by remember { mutableStateOf<Todo?>(null) }
 
     Row(
         modifier = Modifier
@@ -188,6 +192,7 @@ fun TaskItem(task: Todo) {
             checked = isChecked.value,
             onCheckedChange = { checked ->
                 isChecked.value = checked
+
             },
             colors = CheckboxDefaults.colors(
                 checkedColor = Color(0xFFD7B600),
@@ -209,6 +214,9 @@ fun TaskItem(task: Todo) {
                 contentDescription = null,
                 modifier = Modifier
                     .size(20.dp)
+                    .clickable {
+                        navController.navigate("addtodo/${task.id}")
+                    }
                 ,
                 tint = Color(0xFFD7B600)
 
@@ -217,21 +225,14 @@ fun TaskItem(task: Todo) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_delete_24),
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable {
+                        todoViewModel.deleteTodo(task.id)
+                    }
+                ,
                 tint = Color(0xFFD7B600)
             )
         }
     }
 }
-
-data class Task(val time: String, val description: String, var isCompleted: Boolean = false)
-
-fun getTasks() = listOf(
-    Task("8:00 AM", "Go to church", true),
-    Task("12:00 PM", "Cook for the family", true),
-    Task("2:00 PM", "Wash my clothes", true),
-    Task("5:00 PM", "Visit Chastity"),
-    Task("6:00 PM", "Make my hair"),
-    Task("8:00 PM", "Call my brother")
-)
-

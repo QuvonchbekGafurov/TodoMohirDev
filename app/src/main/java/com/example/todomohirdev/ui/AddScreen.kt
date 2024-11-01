@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,11 +31,22 @@ import com.example.todomohirdev.theme.mainbackgroun
 import java.util.Calendar
 
 @Composable
-fun AddTodo(todoViewModel: TodoViewModel,navController: NavController){
+fun AddTodo(todoViewModel: TodoViewModel, navController: NavController, id: String? =null){
     var name by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("Sana tanlanmagan") }
     var selectedTime by remember { mutableStateOf("Vaqt tanlanmagan") }
+
+    LaunchedEffect(Unit) {
+        todoViewModel.getTodoById(id!!.toInt())
+    }
+
+    // Ma'lumotlarni kuzatamiz
+    val todo = todoViewModel.todoItem.observeAsState().value
+    if (id!=null) {
+        Log.e("TAG", "AddTodoIDDD: $todo", )
+    }
+
     val context= LocalContext.current
     Column(
         modifier = Modifier
@@ -144,7 +156,9 @@ fun AddTodo(todoViewModel: TodoViewModel,navController: NavController){
                         checked = false
                     )
                     Log.e("TAG", "AddTodo:$newTodo ", )
-                    todoViewModel.insertTodo(newTodo)
+                    if (id==null) {
+                        todoViewModel.insertTodo(newTodo)
+                    }
                     navController.navigate("main")
 
                 } else {

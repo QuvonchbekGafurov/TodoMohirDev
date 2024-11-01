@@ -29,6 +29,10 @@ class TodoRepository @Inject constructor(
         todoDao.deleteTodoById(id)
     }
 
+    suspend fun getTodoById(todoId: Int): Todo? {
+        return todoDao.getTodoById(todoId)
+    }
+
     // Sana bo'yicha todolarni olish funksiyasi
     fun getTodosByDate(date: String): Flow<List<Todo>> = todoDao.getTodosByDate(date)
 }

@@ -23,4 +23,7 @@ interface TodoDao {
 
     @Query("SELECT * FROM todo_table ORDER BY date ASC, hour ASC")
     fun getAllTodos(): Flow<List<Todo>>
+
+    @Query("SELECT * FROM todo_table WHERE id = :id LIMIT 1")
+    suspend fun getTodoById(id: Int): Todo?
 }
