@@ -9,7 +9,7 @@ import androidx.versionedparcelable.VersionedParcelize
 
 @Entity(tableName = "todo_table")
 data class Todo(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
     val date: String,
     val name: String,
     val title: String,

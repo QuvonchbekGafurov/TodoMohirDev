@@ -1,5 +1,4 @@
 package com.example.todomohirdev.ui
-
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.util.Log
@@ -29,19 +28,31 @@ import com.example.todomohirdev.TodoViewModel
 import com.example.todomohirdev.data.Todo
 import com.example.todomohirdev.theme.mainbackgroun
 import java.util.Calendar
+import kotlin.math.log
 
 @Composable
-fun AddTodo(todoViewModel: TodoViewModel, navController: NavController) {
+fun EditTodo(todoViewModel: TodoViewModel, navController: NavController, id: String? =null){
+    Log.e("TAG", "EditTodoID: $id", )
     var isInitialized by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
+    var todo by remember { mutableStateOf<Todo?>(null) }
+    var check by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf("Sana tanlanmagan") }
     var selectedTime by remember { mutableStateOf("Vaqt tanlanmagan") }
 
-
-    // Ma'lumotlarni kuzatamiz
-
-    val context = LocalContext.current
+    LaunchedEffect(id) {
+        if (id != null) {
+            todoViewModel.getTodoById(id.toInt()).collect { todo ->
+                name = todo.name ?: ""
+                title = todo.title ?: ""
+                selectedDate = todo.date ?: "Sana tanlanmagan"
+                selectedTime = todo.hour ?: "Vaqt tanlanmagan"
+                check = todo.checked
+            }
+        }
+    }
+    val context= LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -142,26 +153,23 @@ fun AddTodo(todoViewModel: TodoViewModel, navController: NavController) {
                 if (name.isNotBlank() && title.isNotBlank() && selectedDate != "Sana tanlanmagan" && selectedTime != "Vaqt tanlanmagan") {
                     println("Ism: $name, Sarlavha: $title, Sana: $selectedDate, Vaqt: $selectedTime")
 
-                    val Todo = Todo(
+                    var updatedTodo = Todo(
                         date = selectedDate,
                         name = name,
                         title = title,
                         hour = selectedTime,
-                        checked = false
+                        checked = check
                     )
-                    Log.e("TAG", "AddTodo:$Todo ")
-                    todoViewModel.insertTodo(Todo)
-                    Log.e("TAGIN", "Insert :$Todo ")
-
+                    if (id != null) {
+                        updatedTodo.id = id.toInt() // ID ni yangilash
+                        todoViewModel.updateTodoTitle(updatedTodo)
+                        Log.d("EditTodo", "Yangilandi: $updatedTodo")
+                    }
                     navController.navigate("main")
 
                 } else {
                     // Toast xabarini ko'rsatish
-                    Toast.makeText(
-                        context,
-                        "Iltimos, barcha maydonlarni to'ldiring!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, "Iltimos, barcha maydonlarni to'ldiring!", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier.align(Alignment.End)

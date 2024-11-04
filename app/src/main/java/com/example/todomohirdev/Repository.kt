@@ -14,6 +14,9 @@ class TodoRepository @Inject constructor(
     // Barcha todolarni qaytaruvchi funksiyani dao orqali olish
     fun getAllTodos(): Flow<List<Todo>> = todoDao.getAllTodos()
 
+    fun getTodoById(id: Int): Flow<Todo> {
+        return todoDao.getTodoById(id)
+    }
     // Todo qo'shish funksiyasi
     suspend fun insertTodo(todo: Todo) {
         todoDao.insertTodo(todo)
@@ -27,10 +30,6 @@ class TodoRepository @Inject constructor(
     // Todo o'chirish funksiyasi
     suspend fun deleteTodoById(id: Int) {
         todoDao.deleteTodoById(id)
-    }
-
-    suspend fun getTodoById(todoId: Int): Todo? {
-        return todoDao.getTodoById(todoId)
     }
 
     // Sana bo'yicha todolarni olish funksiyasi

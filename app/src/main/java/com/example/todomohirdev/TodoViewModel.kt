@@ -28,15 +28,10 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    private val _todoItem = MutableLiveData<Todo?>()
-    val todoItem: LiveData<Todo?> get() = _todoItem
-
-    fun getTodoById(todoId: Int) {
-        viewModelScope.launch {
-            val todo = repository.getTodoById(todoId)
-            _todoItem.value = todo
-        }
+    fun getTodoById(id: Int): Flow<Todo> {
+        return repository.getTodoById(id)
     }
+
     fun updateTodoTitle(todo: Todo) {
         viewModelScope.launch {
             repository.updateTodo(todo =todo )

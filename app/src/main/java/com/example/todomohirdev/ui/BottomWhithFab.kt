@@ -26,7 +26,6 @@ import com.example.todomohirdev.theme.maincolor
 fun BottomAppBarWithFab(todoViewModel: TodoViewModel, navController: NavController) {
     val content = remember { mutableStateOf("Home Screen") }
     val selectedItem = remember { mutableStateOf("home") }
-    val openDialog = remember { mutableStateOf(false) }
 
     Scaffold(
 
@@ -37,7 +36,6 @@ fun BottomAppBarWithFab(todoViewModel: TodoViewModel, navController: NavControll
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    openDialog.value = true
                     navController.navigate("addtodo")
                 },
                 shape = RoundedCornerShape(50),

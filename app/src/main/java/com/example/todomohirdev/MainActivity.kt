@@ -1,5 +1,9 @@
 package com.example.todomohirdev
 
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,9 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.todomohirdev.ui.AddTodo
 import com.example.todomohirdev.theme.TodoMohirDevTheme
+import com.example.todomohirdev.utils.ProfileImagePicker
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,23 +34,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NavigationExample(viewModel = todoViewModel)
+           NavigationExample(viewModel = todoViewModel)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TodoMohirDevTheme {
-        Greeting("Android")
     }
 }

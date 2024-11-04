@@ -48,6 +48,13 @@ import androidx.compose.runtime.remember as remember
 @Composable
 fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
     val allTodos by todoViewModel.allTodos.collectAsState(initial = emptyList())
+    var searchQuery by remember { mutableStateOf("") }
+    // Qidiruv natijalarini filtrlaymiz
+    val filteredTodos = allTodos.filter { todo ->
+        todo.name?.contains(searchQuery, ignoreCase = true) == true ||
+                todo.title?.contains(searchQuery, ignoreCase = true) == true
+    }
+
     Log.e("TAG", "AllTodos:  $allTodos ", )
     val selectedIndex = remember { mutableStateOf(3) }
 
@@ -80,7 +87,6 @@ fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
 
         return weekDates
     }
-    Log.e("Tag", "TodoScreen: ${week()}", )
 
     Column(
         modifier = Modifier
@@ -90,8 +96,8 @@ fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
     ) {
         // Profil va Salomlashuv
        Column(horizontalAlignment = Alignment.Start) {
-            ProfileImagePicker()
-            Spacer(modifier = Modifier.width(8.dp))
+           ProfileImagePicker()
+           Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Good evening, Ivy",
                 fontWeight = FontWeight.Bold,
@@ -143,9 +149,9 @@ fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
 
         // Qidiruv
         TextField(
-            value = "",
+            value = searchQuery,
             shape = RoundedCornerShape(30.dp),
-            onValueChange = {},
+            onValueChange = {searchQuery = it},
             maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
@@ -166,7 +172,7 @@ fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
         Text("Today's tasks", fontWeight = FontWeight.Bold, fontSize = 20.sp)
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(allTodos) { todo ->
+            items(filteredTodos) { todo ->
                 TaskItem(todo,todoViewModel,navController)
             }
         }
@@ -175,8 +181,8 @@ fun TodoScreen(todoViewModel: TodoViewModel,navController: NavController) {
 
 
 @Composable
-fun TaskItem(task: Todo,todoViewModel: TodoViewModel,navController: NavController) {
-    val isChecked = remember { mutableStateOf(task.checked) }
+fun TaskItem(todo: Todo,todoViewModel: TodoViewModel,navController: NavController) {
+    var isChecked by remember { mutableStateOf(todo.checked) }
     var selectedTodo by remember { mutableStateOf<Todo?>(null) }
 
     Row(
@@ -189,10 +195,10 @@ fun TaskItem(task: Todo,todoViewModel: TodoViewModel,navController: NavControlle
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            checked = isChecked.value,
+            checked = isChecked,
             onCheckedChange = { checked ->
-                isChecked.value = checked
-
+                isChecked= checked
+                todoViewModel.updateTodoTitle(todo.copy(checked = isChecked))
             },
             colors = CheckboxDefaults.colors(
                 checkedColor = Color(0xFFD7B600),
@@ -201,11 +207,11 @@ fun TaskItem(task: Todo,todoViewModel: TodoViewModel,navController: NavControlle
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = task.hour, fontSize = 14.sp, color = Color.Gray)
+            Text(text = "${todo.date} ${todo.hour}", fontSize = 14.sp, color = Color.Gray)
             Text(
-                text = task.name,
+                text = todo.name,
                 fontSize = 16.sp,
-                textDecoration = if (isChecked.value) TextDecoration.LineThrough else null
+                textDecoration = if (isChecked) TextDecoration.LineThrough else null
             )
         }
         Column (horizontalAlignment = Alignment.CenterHorizontally){
@@ -215,7 +221,8 @@ fun TaskItem(task: Todo,todoViewModel: TodoViewModel,navController: NavControlle
                 modifier = Modifier
                     .size(20.dp)
                     .clickable {
-                        navController.navigate("addtodo/${task.id}")
+
+                        navController.navigate("edittodo/${todo.id}")
                     }
                 ,
                 tint = Color(0xFFD7B600)
@@ -228,7 +235,7 @@ fun TaskItem(task: Todo,todoViewModel: TodoViewModel,navController: NavControlle
                 modifier = Modifier
                     .size(20.dp)
                     .clickable {
-                        todoViewModel.deleteTodo(task.id)
+                        todoViewModel.deleteTodo(todo.id)
                     }
                 ,
                 tint = Color(0xFFD7B600)
